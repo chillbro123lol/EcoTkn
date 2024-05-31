@@ -1,29 +1,28 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
 const authRoutes = require('./routes/auth');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+
 const app = express();
 
-// Middleware
+app.use(cors());
 app.use(bodyParser.json());
 
-// MongoDB connection
-mongoose.connect('mongodb://xene_user:d%24ZlEH~P*aT)YTQO8_@185.254.97.88:27017/?authMechanism=DEFAULT&authSource=xene_auth&tls=false', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+const mongoURI = 'mongodb://xene_user:d%24ZlEH~P*aT)YTQO8_@185.254.97.88:27017/xene_auth?authMechanism=DEFAULT&authSource=xene_auth&tls=false';
+
+mongoose.connect(mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => {
+    console.log('Connected to MongoDB');
+}).catch(err => {
+    console.error('Error connecting to MongoDB', err);
 });
 
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', () => {
-  console.log('Connected to MongoDB');
-});
-
-// Routes
 app.use('/api/auth', authRoutes);
 
-// Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });
