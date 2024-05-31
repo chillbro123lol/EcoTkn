@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const submitActionForm = document.getElementById('submit-action-form');
     const connectWalletButton = document.getElementById('connect-wallet');
 
+    const apiUrl = 'http://185.254.97.88'; // Update this to your backend URL
+
     if (registerForm) {
         registerForm.addEventListener('submit', async function (event) {
             event.preventDefault();
@@ -11,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            const response = await fetch('/api/auth/register', {
+            const response = await fetch(`${apiUrl}/api/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -35,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch(`${apiUrl}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -66,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         // Update the current user's MetaMask account
                         let token = localStorage.getItem('token');
                         if (token) {
-                            fetch('/api/user/updateMetaMaskAccount', {
+                            fetch(`${apiUrl}/api/user/updateMetaMaskAccount`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -105,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (userDetails) {
         let token = localStorage.getItem('token');
         if (token) {
-            fetch('/api/user/profile', {
+            fetch(`${apiUrl}/api/user/profile`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -154,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 let token = localStorage.getItem('token');
                 if (token) {
-                    const response = await fetch('/api/user/submitAction', {
+                    const response = await fetch(`${apiUrl}/api/user/submitAction`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -183,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (queueList) {
         let token = localStorage.getItem('token');
         if (token) {
-            fetch('/api/admin/getPendingSubmissions', {
+            fetch(`${apiUrl}/api/admin/getPendingSubmissions`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -208,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     const denyButton = li.querySelector('.deny');
 
                                     approveButton.addEventListener('click', function () {
-                                        fetch('/api/admin/approveSubmission', {
+                                        fetch(`${apiUrl}/api/admin/approveSubmission`, {
                                             method: 'POST',
                                             headers: {
                                                 'Content-Type': 'application/json',
@@ -232,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                     });
 
                                     denyButton.addEventListener('click', function () {
-                                        fetch('/api/admin/denySubmission', {
+                                        fetch(`${apiUrl}/api/admin/denySubmission`, {
                                             method: 'POST',
                                             headers: {
                                                 'Content-Type': 'application/json',
