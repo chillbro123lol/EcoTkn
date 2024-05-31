@@ -1,86 +1,95 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const registerForm = document.getElementById('register-form');
     const loginForm = document.getElementById('login-form');
     const submitActionForm = document.getElementById('submit-action-form');
     const connectWalletButton = document.getElementById('connect-wallet');
 
-    // Initialize users array if not present
-    if (!localStorage.getItem('users')) {
-        localStorage.setItem('users', JSON.stringify([]));
-    }
-
     if (registerForm) {
-        registerForm.addEventListener('submit', function(event) {
+        registerForm.addEventListener('submit', async function (event) {
             event.preventDefault();
             const name = document.getElementById('name').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            // Retrieve existing users
-            const users = JSON.parse(localStorage.getItem('users'));
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, email, password }),
+            });
 
-            // Check if the email is already registered
-            const existingUser = users.find(user => user.email === email);
-            if (existingUser) {
-                alert('This email is already registered.');
-                return;
+            const data = await response.json();
+            if (response.ok) {
+                alert('Registration successful!');
+                window.location.href = 'login.html';
+            } else {
+                alert('Error: ' + data.message);
             }
-
-            // Add new user to the array
-            const newUser = { name: name, email: email, password: password, tokenBalance: 0, metaMaskAccount: '', submissions: [] };
-            users.push(newUser);
-
-            // Save updated users array to localStorage
-            localStorage.setItem('users', JSON.stringify(users));
-            alert('Registration successful!');
-            window.location.href = 'login.html';
         });
     }
 
     if (loginForm) {
-        loginForm.addEventListener('submit', function(event) {
+        loginForm.addEventListener('submit', async function (event) {
             event.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            // Retrieve users from localStorage
-            const users = JSON.parse(localStorage.getItem('users'));
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
 
-            // Find the user with matching email and password
-            const user = users.find(user => user.email === email && user.password === password);
-            if (user) {
-                localStorage.setItem('currentUser', JSON.stringify(user));
+            const data = await response.json();
+            if (response.ok) {
+                localStorage.setItem('token', data.token);  // Save token to localStorage
+                alert('Login successful!');
                 window.location.href = 'profile.html';
             } else {
-                alert('Invalid email or password');
+                alert('Error: ' + data.message);
             }
         });
     }
 
     if (connectWalletButton) {
-        connectWalletButton.addEventListener('click', function(event) {
+        connectWalletButton.addEventListener('click', function (event) {
             event.preventDefault();
             if (typeof window.ethereum !== 'undefined') {
                 window.ethereum.request({ method: 'eth_requestAccounts' })
                     .then(accounts => {
                         console.log('Connected account:', accounts[0]);
                         alert(`Connected account: ${accounts[0]}`);
-                        
-                        // Update the current user's MetaMask account
-                        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-                        currentUser.metaMaskAccount = accounts[0];
-                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                        
-                        // Update the users array with the new MetaMask account
-                        let users = JSON.parse(localStorage.getItem('users'));
-                        const userIndex = users.findIndex(user => user.email === currentUser.email);
-                        if (userIndex !== -1) {
-                            users[userIndex].metaMaskAccount = accounts[0];
-                            localStorage.setItem('users', JSON.stringify(users));
-                        }
 
-                        // Update the displayed MetaMask account
-                        document.getElementById('metaMask-account').textContent = `MetaMask Account: ${accounts[0]}`;
+                        // Update the current user's MetaMask account
+                        let token = localStorage.getItem('token');
+                        if (token) {
+                            fetch('/api/user/updateMetaMaskAccount', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify({ metaMaskAccount: accounts[0] })
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        alert('MetaMask account updated!');
+                                        document.getElementById('metaMask-account').textContent = `MetaMask Account: ${accounts[0]}`;
+                                    } else {
+                                        alert('Error updating MetaMask account.');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error updating MetaMask account', error);
+                                    alert('Error updating MetaMask account.');
+                                });
+                        } else {
+                            alert('Please log in first.');
+                        }
                     })
                     .catch(error => {
                         console.error('Error connecting to MetaMask', error);
@@ -94,56 +103,76 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const userDetails = document.getElementById('user-details');
     if (userDetails) {
-        const user = JSON.parse(localStorage.getItem('currentUser'));
-        if (user) {
-            document.getElementById('user-name').textContent = user.name;
-            document.getElementById('user-email').textContent = user.email;
-            document.getElementById('token-balance').textContent = user.tokenBalance;
+        let token = localStorage.getItem('token');
+        if (token) {
+            fetch('/api/user/profile', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+                .then(response => response.json())
+                .then(user => {
+                    if (user) {
+                        document.getElementById('user-name').textContent = user.name;
+                        document.getElementById('user-email').textContent = user.email;
+                        document.getElementById('token-balance').textContent = user.tokenBalance;
 
-            if (user.metaMaskAccount) {
-                document.getElementById('metaMask-account').textContent = `MetaMask Account: ${user.metaMaskAccount}`;
-            }
+                        if (user.metaMaskAccount) {
+                            document.getElementById('metaMask-account').textContent = `MetaMask Account: ${user.metaMaskAccount}`;
+                        }
 
-            const submissionsList = document.getElementById('submissions-list');
-            submissionsList.innerHTML = ''; // Clear the list first
-            user.submissions.forEach(submission => {
-                const li = document.createElement('li');
-                li.textContent = `${submission.description} - Status: ${submission.status}`;
-                submissionsList.appendChild(li);
-            });
+                        const submissionsList = document.getElementById('submissions-list');
+                        submissionsList.innerHTML = ''; // Clear the list first
+                        user.submissions.forEach(submission => {
+                            const li = document.createElement('li');
+                            li.textContent = `${submission.description} - Status: ${submission.status}`;
+                            submissionsList.appendChild(li);
+                        });
+                    } else {
+                        window.location.href = 'login.html';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching user profile', error);
+                    window.location.href = 'login.html';
+                });
         } else {
             window.location.href = 'login.html';
         }
     }
 
     if (submitActionForm) {
-        submitActionForm.addEventListener('submit', function(event) {
+        submitActionForm.addEventListener('submit', async function (event) {
             event.preventDefault();
             const description = document.getElementById('description').value;
             const proof = document.getElementById('proof').files[0];
             const reader = new FileReader();
 
-            reader.onload = function(event) {
+            reader.onload = async function (event) {
                 const base64Proof = event.target.result;
 
-                // Update the current user's submissions
-                let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-                if (!currentUser.submissions) {
-                    currentUser.submissions = [];
-                }
-                currentUser.submissions.push({ description, proof: base64Proof, status: 'pending' });
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                let token = localStorage.getItem('token');
+                if (token) {
+                    const response = await fetch('/api/user/submitAction', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ description, proof: base64Proof })
+                    });
 
-                // Update the users array with the new submission
-                let users = JSON.parse(localStorage.getItem('users'));
-                const userIndex = users.findIndex(user => user.email === currentUser.email);
-                if (userIndex !== -1) {
-                    users[userIndex].submissions = currentUser.submissions;
-                    localStorage.setItem('users', JSON.stringify(users));
+                    const data = await response.json();
+                    if (response.ok) {
+                        alert('Submission successful!');
+                        window.location.href = 'profile.html';
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } else {
+                    alert('Please log in first.');
                 }
-
-                alert('Submission successful!');
-                window.location.href = 'profile.html';
             };
 
             reader.readAsDataURL(proof);
@@ -152,57 +181,91 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const queueList = document.getElementById('queue-list');
     if (queueList) {
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        queueList.innerHTML = ''; // Clear the list first
-        console.log('Users:', users); // Logging users for debugging
+        let token = localStorage.getItem('token');
+        if (token) {
+            fetch('/api/admin/getPendingSubmissions', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+                .then(response => response.json())
+                .then(users => {
+                    queueList.innerHTML = ''; // Clear the list first
+                    users.forEach(user => {
+                        if (user.submissions && user.submissions.length > 0) {
+                            user.submissions.forEach(submission => {
+                                if (submission.status === 'pending') {
+                                    const li = document.createElement('li');
+                                    li.innerHTML = `
+                                        <p>${submission.description}</p>
+                                        <img src="${submission.proof}" alt="Proof" style="max-width: 200px;">
+                                        <p>User: ${user.name} - Email: ${user.email}</p>
+                                        <button class="approve">Approve</button>
+                                        <button class="deny">Deny</button>
+                                    `;
+                                    const approveButton = li.querySelector('.approve');
+                                    const denyButton = li.querySelector('.deny');
 
-        users.forEach(user => {
-            if (user.submissions && user.submissions.length > 0) {
-                user.submissions.forEach(submission => {
-                    if (submission.status === 'pending') {
-                        const li = document.createElement('li');
-                        li.innerHTML = `
-                            <p>${submission.description}</p>
-                            <img src="${submission.proof}" alt="Proof" style="max-width: 200px;">
-                            <p>User: ${user.name} - Email: ${user.email}</p>
-                            <button class="approve">Approve</button>
-                            <button class="deny">Deny</button>
-                        `;
-                        const approveButton = li.querySelector('.approve');
-                        const denyButton = li.querySelector('.deny');
+                                    approveButton.addEventListener('click', function () {
+                                        fetch('/api/admin/approveSubmission', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'Authorization': `Bearer ${token}`
+                                            },
+                                            body: JSON.stringify({ userId: user._id, submissionId: submission._id })
+                                        })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    alert('Submission approved and tokens minted!');
+                                                    window.location.reload();
+                                                } else {
+                                                    alert('Error approving submission.');
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Error approving submission', error);
+                                                alert('Error approving submission.');
+                                            });
+                                    });
 
-                        approveButton.addEventListener('click', function() {
-                            submission.status = 'approved';
-                            const userIndex = users.findIndex(u => u.email === user.email);
-                            if (userIndex !== -1) {
-                                const subIndex = users[userIndex].submissions.findIndex(s => s.description === submission.description && s.proof === submission.proof);
-                                if (subIndex !== -1) {
-                                    users[userIndex].submissions[subIndex].status = 'approved';
-                                    localStorage.setItem('users', JSON.stringify(users));
-                                    alert('Submission approved and tokens minted!');
-                                    window.location.reload();
+                                    denyButton.addEventListener('click', function () {
+                                        fetch('/api/admin/denySubmission', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'Authorization': `Bearer ${token}`
+                                            },
+                                            body: JSON.stringify({ userId: user._id, submissionId: submission._id })
+                                        })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    alert('Submission denied!');
+                                                    window.location.reload();
+                                                } else {
+                                                    alert('Error denying submission.');
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error('Error denying submission', error);
+                                                alert('Error denying submission.');
+                                            });
+                                    });
+
+                                    queueList.appendChild(li);
                                 }
-                            }
-                        });
-
-                        denyButton.addEventListener('click', function() {
-                            submission.status = 'denied';
-                            const userIndex = users.findIndex(u => u.email === user.email);
-                            if (userIndex !== -1) {
-                                const subIndex = users[userIndex].submissions.findIndex(s => s.description === submission.description && s.proof === submission.proof);
-                                if (subIndex !== -1) {
-                                    users[userIndex].submissions[subIndex].status = 'denied';
-                                    localStorage.setItem('users', JSON.stringify(users));
-                                    alert('Submission denied!');
-                                    window.location.reload();
-                                }
-                            }
-                        });
-
-                        queueList.appendChild(li);
-                    }
+                            });
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching pending submissions', error);
                 });
-            }
-        });
+        } else {
+            window.location.href = 'login.html';
+        }
     }
 });
