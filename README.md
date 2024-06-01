@@ -1,2 +1,0 @@
-# EcoTkn
-token
