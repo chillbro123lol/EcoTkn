@@ -1,3 +1,0 @@
-git add _redirects
-git commit -m "Add _redirects file for Netlify"
-git push origin main
