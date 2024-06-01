@@ -1,0 +1,123 @@
+/* General styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #2c2c2c; /* Dark grey background */
+    color: #f0f0f0; /* Light grey text */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+}
+
+header {
+    background-color: #1a1a1a; /* Even darker grey for header */
+    color: white;
+    padding: 10px 20px; /* Reduced padding for logo space */
+    width: 100%;
+    display: flex; /* Flexbox for alignment */
+    align-items: center; /* Center items vertically */
+    position: fixed; /* Fix the header at the top */
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+header img {
+    height: 80px; /* Adjust the height as needed */
+    margin-right: -100px; /* Space between logo and text */
+}
+
+.header-title-container {
+    flex: 1; /* Take remaining space */
+    text-align: center; /* Center text */
+}
+
+.header-title {
+    margin: 0; /* Remove default margins */
+}
+
+main {
+    background-color: #333333; /* Slightly lighter dark grey for main content */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    width: 80%;
+    max-width: 800px;
+    margin-top: 100px; /* Adjust margin to avoid header overlap */
+}
+
+h1, h2 {
+    color: #ffffff; /* White text for headers */
+}
+
+button {
+    background-color: #4caf50; /* Green color for buttons */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #388e3c; /* Darker green on hover */
+}
+
+input[type="text"], input[type="email"], input[type="password"], input[type="file"], textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #555555; /* Dark grey border */
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: #444444; /* Dark grey background for inputs */
+    color: #f0f0f0; /* Light grey text for inputs */
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background-color: #444444; /* Dark grey for list items */
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+img {
+    max-width: 100%;
+    border-radius: 4px;
+}
+
+a {
+    color: #4caf50; /* Green color for links */
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+#user-details, #user-actions, #user-submissions, #submission-queue {
+    margin-bottom: 20px;
+}
+
+#metaMask-account {
+    font-weight: bold;
+}
+
+/* Specific page styles */
+#register-form, #login-form, #submit-action-form {
+    display: flex;
+    flex-direction: column;
+}
+
+#connect-wallet, #submit-action {
+    margin-top: 20px;
+}

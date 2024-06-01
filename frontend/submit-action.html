@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Action - EcoToken</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <img src="assets/logo.png" alt="EcoToken Logo">
+        <div class="header-title-container">
+            <h1 class="header-title">Submit New Action</h1>
+        </div>
+    </header>
+    <main>
+        <form id="submit-action-form">
+            <label for="description">Action Description:</label>
+            <textarea id="description" name="description" required></textarea>
+            <label for="proof">Upload Proof (photo/video):</label>
+            <input type="file" id="proof" name="proof" accept="image/*,video/*" required>
+            <button type="submit" id="submit-action">Submit Action</button>
+        </form>
+    </main>
+    <script src="js/scripts.js"></script>
+</body>
+</html>
