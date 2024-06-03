@@ -14,6 +14,8 @@
         </div>
     </header>
     <main>
+        <button id="connect-wallet">Connect Wallet</button>
+        <div id="metaMask-account"></div>
         <form id="submit-action-form">
             <label for="description">Action Description:</label>
             <textarea id="description" name="description" required></textarea>
@@ -21,7 +23,10 @@
             <input type="file" id="proof" name="proof" accept="image/*,video/*" required>
             <button type="submit" id="submit-action">Submit Action</button>
         </form>
+        <button id="fetch-submissions">Fetch Submissions</button>
+        <div id="submissions-list"></div>
     </main>
-    <script src="js/scripts.js"></script>
+
+    <script src="js/scripts.js" type="module"></script>
 </body>
 </html>

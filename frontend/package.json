@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@helia/unixfs": "^3.0.6",
+    "@pinata/sdk": "^2.1.0",
+    "helia": "^4.2.3",
+    "ipfs-http-client": "^60.0.1"
+  }
+}
