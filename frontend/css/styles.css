@@ -121,3 +121,78 @@ a:hover {
 #connect-wallet, #submit-action {
     margin-top: 20px;
 }
+
+/* Add this to your existing styles.css file */
+
+#user-actions {
+    margin-top: 20px;
+}
+
+#user-actions button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#user-actions button:hover {
+    background-color: #45a049;
+}
+
+#vote-button {
+    background-color: #2196F3; /* Different color for differentiation */
+}
+
+#vote-button:hover {
+    background-color: #1E88E5;
+}
+
+/* Voting Page Specific Styles */
+#submission-list {
+    background-color: #333333; /* Match the main content background */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    width: 100%;
+}
+
+#submissions-list li {
+    background-color: #444444; /* Dark grey for list items */
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+}
+
+.approve-button {
+    background-color: #4CAF50; /* Green color for approve button */
+}
+
+.approve-button:hover {
+    background-color: #388E3C; /* Darker green on hover */
+}
+
+.disapprove-button {
+    background-color: #f44336; /* Red color for disapprove button */
+}
+
+.disapprove-button:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+}
+
+#submissions-list li p {
+    margin: 5px 0;
+}
+
+.submission-image {
+    max-width: 100%;
+    border-radius: 4px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
